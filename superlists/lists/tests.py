@@ -10,6 +10,7 @@ from lists.views import home_page
 
 
 class HomePageTest(TestCase):
+    
 
     def test_root_url_resolves_to_home_page_view(self):
         found = resolve('/')
@@ -18,7 +19,23 @@ class HomePageTest(TestCase):
     def test_home_page_returns_correct_html(self):
         request = HttpRequest()
         response = home_page(request)
-        excepted_html = render_to_string('home.html')
+        excepted_html = render_to_string(
+            'home.html',
+            request=request
+        )
         self.assertEqual(response.content.decode(), excepted_html)
 
+    def test_home_page_can_save_a_POST_request(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = '一个新的待办事项'
+
+        response = home_page(request)
+        self.assertIn('一个新的待办事项', response.content.decode())
+        excepted_html = render_to_string(
+            'home.html',
+            {'new_item_text': '一个新的待办事项'},
+            request=request
+        )
+        self.assertEqual(response.content.decode(), excepted_html)
 

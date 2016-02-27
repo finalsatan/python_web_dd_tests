@@ -44,21 +44,33 @@ class NewVisitorTest(unittest.TestCase):
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(
             '1: 买苹果笔记本',
-            [row.text for row in rows],
-            "New to-do item did not appear in table"
+            [row.text for row in rows]
         )
         # 页面中又显示了一个文本框，可以输入其他的待办事项
         # 他输入了“用苹果笔记本打魔兽世界”
         # 小张做事很有条理
-        self.fail('Finish the test!')
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('用苹果笔记本打魔兽世界')
+        inputbox.send_keys(Keys.ENTER)
 
         # 页面再次更新，他的清单中显示了这两个待办事项
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(
+            '1: 买苹果笔记本',
+            [row.text for row in rows]
+        )
+        self.assertIn(
+            '2: 用苹果笔记本打魔兽世界',
+            [row.text for row in rows]
+        )
 
         # 小张想知道这个网站是否会记住他的清单
 
         # 他看到网站为他生成了了一个唯一的URL
         # 而且页面中有一些文字解说这个功能
 
+        self.fail('Finish the test!')
         # 他访问那个URL，发现他的待办事项列表还在
 
         # 他很满意，去睡觉了
