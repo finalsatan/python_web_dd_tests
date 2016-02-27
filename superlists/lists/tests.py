@@ -50,12 +50,33 @@ class HomePageTest(TestCase):
         request.method = 'POST'
         request.POST['item_text'] = '一个新的待办事项'
 
-        response = home_page(request)
-        self.assertIn('一个新的待办事项', response.content.decode())
-        excepted_html = render_to_string(
-            'home.html',
-            {'new_item_text': '一个新的待办事项'},
-            request=request
-        )
-        self.assertEqual(response.content.decode(), excepted_html)
+        home_page(request)
 
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, '一个新的待办事项')
+
+    def test_home_page_redirects_after_POST(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = '一个新的待办事项'
+
+        response = home_page(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_home_page_only_saves_items_when_necessary(self):
+        request = HttpRequest()
+        home_page(request)
+        self.assertEqual(Item.objects.count(), 0)
+
+    def test_home_page_displays_all_list_items(self):
+        Item.objects.create(text='待办事项1')
+        Item.objects.create(text='待办事项2')
+
+        request = HttpRequest()
+        response = home_page(request)
+
+        self.assertIn('待办事项1', response.content.decode())
+        self.assertIn('待办事项2', response.content.decode())
