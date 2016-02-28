@@ -44,9 +44,11 @@ class NewVisitorTest(LiveServerTestCase):
         # 小张的爱好是使用苹果笔记本打游戏
         inputbox.send_keys('买苹果笔记本')
 
-        # 他按回车键后，页面更新了
-        # 待办事项表格中显示了“1: 买苹果笔记本”
+        # 他按回车键后, 被带到了一个新URL
+        # 这个页面的待办事项表格中显示了“1: 买苹果笔记本”
         inputbox.send_keys(Keys.ENTER)
+        xiaozhang_list_url = self.browser.current_url
+        self.assertRegex(xiaozhang_list_url, '/lists/.+')
         self.check_for_row_in_list_table('1: 买苹果笔记本')
 
         # 页面中又显示了一个文本框，可以输入其他的待办事项
@@ -60,12 +62,32 @@ class NewVisitorTest(LiveServerTestCase):
         self.check_for_row_in_list_table('1: 买苹果笔记本')
         self.check_for_row_in_list_table('2: 用苹果笔记本打魔兽世界')
 
-        # 小张想知道这个网站是否会记住他的清单
+        # 现在一个叫做小李的新用户访问了网站
 
-        # 他看到网站为他生成了了一个唯一的URL
-        # 而且页面中有一些文字解说这个功能
+        # 我们使用一个新浏览器会话
+        # 确保小张的信息不会从cookie中泄露出来
+        self.browser.quit()
+        self.browser = webdriver.Chrome()
 
-        self.fail('Finish the test!')
-        # 他访问那个URL，发现他的待办事项列表还在
+        # 小李访问首页
+        # 页面中看不到小张的待办事项清单
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_elements_by_tag_name('body').text
+        self.assertNotIn('买苹果笔记本', page_text)
+        self.assertNotIn('用苹果笔记本打魔兽世界', page_text)
 
-        # 他很满意，去睡觉了
+        # 小李输入一个新的待办事项，新建一个清单
+        # 他不像小张那样有兴致
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('买营养快线')
+        inputbox.send_keys(Keys.ENTER)
+
+        # 小李获得了他的唯一URL
+        xiaoli_list_url = self.browser.current_url
+        self.assertRegex(xiaoli_list_url, '/lists/.+')
+        self.assertNotEqual(xiaoli_list_url, xiaozhang_list_url)
+
+        # 这个页面中还是没有小张的待办事项清单
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('买苹果笔记本', page_text)
+        self.assertIn('买营养快线', page_text)
