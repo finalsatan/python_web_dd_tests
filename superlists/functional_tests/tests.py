@@ -21,7 +21,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
     @classmethod
     def tearDownClass(cls):
         if cls.server_url == cls.live_server_url:
-            super.tearDownClass()
+            super().tearDownClass()
 
     def setUp(self):
         self.browser = webdriver.Chrome()
@@ -40,7 +40,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
     def test_layout_and_styling(self):
         # 小张访问首页
-        self.browser.get(self.live_server_url)
+        self.browser.get(self.server_url)
         self.browser.set_window_size(1024, 768)
 
         # 他看到输入框完美的居中显示
@@ -63,7 +63,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
     def test_can_start_a_list_and_retrieve_it_later(self):
         # 小张听说有一个很酷的在线待办事项应用
         # 他去看了这个应用的首页
-        self.browser.get(self.live_server_url)
+        self.browser.get(self.server_url)
 
         # 他注意到网页的标题和头部都包含“To-Do”这个词
         self.assertIn('To-Do', self.browser.title)
@@ -108,7 +108,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # 小李访问首页
         # 页面中看不到小张的待办事项清单
-        self.browser.get(self.live_server_url)
+        self.browser.get(self.server_url)
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('买苹果笔记本', page_text)
         self.assertNotIn('用苹果笔记本打魔兽世界', page_text)
